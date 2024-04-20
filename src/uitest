@@ -3,10 +3,10 @@ import java.util.*;
 
 public class uitest {
    
-    static String connectionUrl = "jdbc:sqlserver://cxp-sql-02\\jab525;"
+    static String connectionUrl = "jdbc:sqlserver://cxp-sql-02\\dah181;"
     + "database=CRS;"
     + "user=sa;"
-    + "password=1V6FVhAtVO6Uvm;"
+    + "password=atnBEYX2pP0n3U;"
     + "encrypt=true;"
     + "trustServerCertificate=true;"
     + "loginTimeout=15;";
