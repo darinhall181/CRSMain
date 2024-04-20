@@ -1,8 +1,10 @@
+// importing necesary libraries
 import java.sql.*;
 import java.util.*;
 
 public class uitest {
    
+    // connection url allowing access into the database
     static String connectionUrl = "jdbc:sqlserver://cxp-sql-02\\jab525;"
     + "database=CRS;"
     + "user=sa;"
@@ -13,9 +15,11 @@ public class uitest {
    
     public static void main(String[] args){
 
-        boolean run = true;
+        // scanner that reads user input to tell which query to execute
         Scanner s = new Scanner(System.in);
 
+        boolean run = true;
+        while(run){
         // print out the options
         System.out.println("1. You are a company that is closing down and would like to delete its catalog from the database.");
         System.out.println("2. You are looking for a camera and would like to see the cheapest and most expensive camera from every brand.");
@@ -25,11 +29,13 @@ public class uitest {
         System.out.println("6. You are a company that would like to add a new product to the market.");
         System.out.println("7. Exit");
 
+        // user prompt
         System.out.println("\nPlease enter the number corresponding to your desired function.");
 
-
+        // user input stored in choice
         int choice = s.nextInt();
 
+        // different method will be executed depending on the user's choice
         switch(choice){
             case 1:
                 method1();
@@ -52,26 +58,35 @@ public class uitest {
             case 7:
                 System.out.println("Exiting...");
                 run = false;
+        }
     }
+
+    // scanner instance is closed
     s.close();
 
-
     }
 
+    // method that deletes every model produced by a given company from the database
     public static void method1(){
 
+        // the user is prompted and a scanner records the name of the brand that the user inputs
         System.out.println("\nWhat is the name of your brand?");
         Scanner scan = new Scanner(System.in);
         String brand = scan.nextLine();
         scan.close();
 
+        // instantiating a result set to store the id of the brand based on its name
         ResultSet result = null;
 
         try(Connection connection = DriverManager.getConnection(connectionUrl)){
+            
+            // query that returns the id of the brand based on the name given by the user and stores it in the result set
             String query1 = "select id from brand where name = ?;";
             PreparedStatement statement1 = connection.prepareStatement(query1, Statement.RETURN_GENERATED_KEYS);
             statement1.setString(1, brand);
             result = statement1.executeQuery();
+
+            //
             String brand_id = null;
             while(result.next()){
                 brand_id = result.getString(1);
@@ -133,7 +148,21 @@ public class uitest {
 
     public static void method3(){
         Scanner scan = new Scanner(System.in);
-        System.out.println("What is your budget?");
+
+
+        System.out.println("\n1. Beginner\n2. Advanced\nPlease choose your skill level. Type the number corresponding to your choice and press enter.");
+        
+        ResultSet result = null;
+
+        switch(scan.nextInt()){
+            case 1:
+                System.out.println("");
+                break;
+            case 2:
+                break;
+        }
+        
+        scan.close();
     }
 
     public static void method4(){
