@@ -386,7 +386,6 @@ public class uitest {
                     
                     break;
                 }
-                //does the things about the thisgns asdfasdkfa;skdjf
                 catch(Exception e){
                     e.printStackTrace();
                 }
