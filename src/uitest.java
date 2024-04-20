@@ -3,15 +3,18 @@ import java.util.*;
 
 public class uitest {
    
-    static String connectionUrl = "jdbc:sqlserver://cxp-sql-02\\dah181;"
+    static String connectionUrl = "jdbc:sqlserver://cxp-sql-02\\jab525;"
     + "database=CRS;"
     + "user=sa;"
-    + "password=atnBEYX2pP0n3U;"
+    + "password=1V6FVhAtVO6Uvm;"
     + "encrypt=true;"
     + "trustServerCertificate=true;"
     + "loginTimeout=15;";
    
     public static void main(String[] args){
+
+        boolean run = true;
+        Scanner s = new Scanner(System.in);
 
         // print out the options
         System.out.println("1. You are a company that is closing down and would like to delete its catalog from the database.");
@@ -23,9 +26,10 @@ public class uitest {
         System.out.println("7. Exit");
 
         System.out.println("\nPlease enter the number corresponding to your desired function.");
-        Scanner s = new Scanner(System.in);
+
+
         int choice = s.nextInt();
-       
+
         switch(choice){
             case 1:
                 method1();
@@ -45,9 +49,12 @@ public class uitest {
             case 6:
                 method6();
                 break;
-        }
-       
-        s.close();
+            case 7:
+                System.out.println("Exiting...");
+                run = false;
+    }
+    s.close();
+
 
     }
 
@@ -162,15 +169,16 @@ public class uitest {
 
     public static void method5(){
         Scanner scan = new Scanner(System.in);
-        System.out.println("What is the name of your brand?");
+        System.out.println("\nWhat is the name of your brand?");
         String brand = scan.nextLine();
-        System.out.println("Would you like to reduce your prices by a dollar amount or a percentage? Choose the number corresponding to your choice.\n1. Dollar \n2. Percentage");
+        System.out.println("\nWould you like to reduce your prices by a dollar amount or a percentage? Choose the number corresponding to your choice.\n1. Dollar \n2. Percentage");
         int choice = scan.nextInt();
+
 
         switch(choice){
             case 1:
                 Scanner s = new Scanner(System.in);
-                System.out.println("How much would you like to change your prices by? Enter a negative number if you would like to decrease your prices.");
+                System.out.println("\nHow much would you like to change your prices by? Enter a negative number if you would like to decrease your prices.");
                 String dollar_amount = s.nextLine();
                 s.close();
                 try(Connection connection = DriverManager.getConnection(connectionUrl)){
@@ -181,14 +189,20 @@ public class uitest {
                     statement1.setString(2, brand);
                     statement1.executeQuery();
 
-                    String query2 = "update lens set lens.price = lens.price + ? where brand = ?;";
+                    String query2 = "update lens set lens.price = lens.price + ? from lens inner join brand on lens.brand = brand.id where brand.name = ?;";
                     PreparedStatement statement2 = connection.prepareStatement(query2, Statement.RETURN_GENERATED_KEYS);
                     statement2.setString(1, dollar_amount);
                     statement2.setString(2, brand);
                     statement2.executeQuery();
 
-                    System.out.println("Your prices have been updated accordingly.");
+                    if(Integer.parseInt(dollar_amount) > 0){
+                        System.out.println("\n" + brand + "'s prices have been increased by $" + dollar_amount + ".");
+                    }
 
+                    else{
+                        System.out.println("\n" + brand + "'s prices have been decreased by $" + dollar_amount.substring(1) + ".");
+                    }
+                    break;
                 }
        
                 catch(Exception e){
@@ -197,7 +211,7 @@ public class uitest {
 
             case 2:
                 Scanner s1 = new Scanner(System.in);
-                System.out.println("By what percentage would you like to change your prices? Enter a negative number to decrease your prices.");
+                System.out.println("\nBy what percentage would you like to change your prices? Enter a negative number to decrease your prices.");
                 String percent = s1.nextLine();
                 s1.close();
                 try(Connection connection = DriverManager.getConnection(connectionUrl)){
@@ -212,14 +226,24 @@ public class uitest {
                     statement2.setString(1, percent);
                     statement2.setString(2, brand);
                     statement2.executeQuery();
+
+                    if(Integer.parseInt(percent) > 0){
+                        System.out.println("\n" + brand + "'s prices have been increased by " + percent + "%.");
+                    }
+
+                    else{
+                        System.out.println("\n" + brand + "'s prices have been decreased by " + percent.substring(1) + "%.");
+                    }
+
+                    break;
                 }
                 catch(Exception e){
                     e.printStackTrace();
                 }
         }
-       
-        System.out.println("Your prices have been updated accordingly.");
         scan.close();
+
+
 
 
     }
@@ -275,6 +299,7 @@ public class uitest {
                     while(result.next()){
                         System.out.println("\nYour camera body has been added to the database. Its id number is: " + result.getString(1));
                     }
+                    break;
                    
                 }
                 catch(Exception e){
@@ -314,6 +339,7 @@ public class uitest {
                     while(result.next()){
                         System.out.println("\nYour lens has been added to the database. Its id number is: " + result.getString(1));
                     }
+                    break;
                 }
                 catch(Exception e){
                     e.printStackTrace();
@@ -330,14 +356,21 @@ public class uitest {
                 switch(scan.nextInt()){
                     case 1:
                         gear_type = "tripod";
+                        break;
                     case 2:
                         gear_type = "filter";
+                        break;
                     case 3:
                         gear_type = "lens cap";
+                        break;
                     case 4:
                         gear_type = "flash";
+                        break;
                     case 5:
                         gear_type = "adapter";
+                        break;
+                    
+                    
                 }
 
                 try(Connection connection = DriverManager.getConnection(connectionUrl)){
@@ -350,6 +383,8 @@ public class uitest {
                     while(result.next()){
                         System.out.println("\nYour " + gear_type + " has been added to the database. Its id number is: " + result.getString(1));
                     }
+                    
+                    break;
                 }
                 catch(Exception e){
                     e.printStackTrace();
