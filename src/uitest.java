@@ -247,49 +247,7 @@ public class uitest {
             // advanced
             case 2:
                 
-                // we assume advanced photographers know what brand they want to shoot with so their options are printed out
-                System.out.println("\n1. Canon\n2. Fujifilm\n3. Leica\n4. Nikon\n5. Sony\n6. Pentax\n7. Olympus\n8. GoPro\n9. Panasonic");
-                System.out.println("\nPlease type the name of the brand above that you would like to use and hit enter.");
-                String body_brand = scan.nextLine();
-
-                // brand_id will store the id of the brand identified by the user
-                int brand_id = 0;
-
-                try(Connection connection = DriverManager.getConnection(connectionUrl)){
-
-                    // this query will produce a set of all camera/lens combinations from the specified brand that are within the budget
-                    String query = "select * from body inner join brand on body.brand = brand.id "
-                    + " inner join body_lens on body_lens.body_id = body.id inner join lens on "
-                    + "body_lens.lens_id = lens.id where brand.name = ? and (body.price + lens.price) <= ?;";
-                    PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                    statement.setString(1, body_brand);
-                    statement.setInt(2, budget);
-                    ResultSet result = statement.executeQuery();
-
-                    System.out.println("\nHere are all of " + body_brand + "'s camera/lens combos that fit your budget: ");
-
-                    // this message will appear if there are no combinations that fit the specifications
-                    if(!result.isBeforeFirst()){
-                        System.out.println("\n" + body_brand + " has no models within your budget.");
-                    }
-
-                    // if there are combinations from the specified brand within the budget, they and their specifications will be printed out
-                    else{
-                        while(result.next()){
-                            brand_id = result.getInt(2);
-                            System.out.println("\n" + "ID: " + result.getString(1) +
-                            " | Model: " + result.getString(3) + " | Focal Length: " + 
-                            result.getString(15) + "-" + result.getString(16) + " | Aperture: "
-                            + result.getString(18) + " | Price: $" + (result.getInt(4) + result.getInt(14)));
-                        }
-                    }
-                }
-
-                catch(Exception e){
-                    e.printStackTrace();
-                }
-
-                // after the above set is printed out, the user will decide whether they want a camera and a lens or just a lens
+                // the user will decide whether they want a camera and a lens or just a lens
                 // advanced photographers might already have a camera they like and as such, might only need a new lens to go with it
                 System.out.println("\n1. New camera and lens\n2. New lens only\n\n"
                 +"Are you looking for a new camera and a new lens or a new lens only?"
@@ -298,6 +256,77 @@ public class uitest {
                 // answer stores the option the user chose
                 int answer = scan.nextInt();
                 scan.nextLine();
+
+                // we assume advanced photographers know what brand they want to shoot with so their options are printed out
+                System.out.println("\n1. Canon\n2. Fujifilm\n3. Leica\n4. Nikon\n5. Sony\n6. Pentax\n7. Olympus\n8. GoPro\n9. Panasonic");
+                System.out.println("\nPlease type the name of the brand above that you would like to use and hit enter.");
+                String body_brand = scan.nextLine();
+
+                // brand_id will store the id of the brand identified by the user
+                int brand_id = 0;
+
+
+
+                try(Connection connection = DriverManager.getConnection(connectionUrl)){
+
+                    // this query will produce a set of all camera/lens combinations or just lenses from the specified brand that are within the budget
+                    String query = null;
+                    
+                    if(answer == 1){
+                        query = "select * from body inner join brand on body.brand = brand.id "
+                        + " inner join body_lens on body_lens.body_id = body.id inner join lens on "
+                        + "body_lens.lens_id = lens.id where brand.name = ? and (body.price + lens.price) <= ?;";
+                    }
+
+                    else{
+                        query = "select brand.id, brand.name, lens.FL_start, lens.FL_end, lens.aperture, lens.price "
+                        + "from brand inner join lens on brand.id = lens.brand where brand.name = ? and lens.price <= ?;";
+                    }
+                    PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+
+                    statement.setString(1, body_brand);
+                    statement.setInt(2, budget);
+                    ResultSet result = statement.executeQuery();
+
+                    if(answer == 1){
+                        System.out.println("\nHere are all of " + body_brand + "'s camera/lens combos that fit your budget: ");
+                    }
+
+                    else{
+                        System.out.println("\nHere are all of " + body_brand + "'s lenses that fit your budget: ");
+                    }
+                    // this message will appear if there are no combinations that fit the specifications
+                    if(!result.isBeforeFirst()){
+                        System.out.println("\n" + body_brand + " has no models within your budget.");
+                    }
+
+                    // if there are combinations from the specified brand within the budget, they and their specifications will be printed out
+                    else{
+                        if(answer == 1){
+                            while(result.next()){
+                                brand_id = result.getInt(2);
+                                System.out.println("\n" + "ID: " + result.getString(1) +
+                                " | Model: " + result.getString(3) + " | Focal Length: " + 
+                                result.getString(15) + "-" + result.getString(16) + " | Aperture: "
+                                + result.getString(18) + " | Price: $" + (result.getInt(4) + result.getInt(14)));
+                            }
+                        }
+                        else{
+                            while(result.next()){
+                                brand_id = result.getInt(1);
+                                System.out.println("\n" + "Focal Length: " + result.getString(3) + "-"
+                                + result.getString(4) + " | Aperture: " + result.getString(5) 
+                                + " | Price: $" + result.getString(6));
+                            }
+                        }
+                    }
+                }
+
+                catch(Exception e){
+                    e.printStackTrace();
+                }
+
+               
 
                 // the user is prompted to input what type of lens they want to buy
                 // this will determine by what focal lengths the lenses are filtered by
@@ -378,7 +407,7 @@ public class uitest {
                         System.out.println("There were no products that matched your parameters :( Please try again."); 
                     } 
                     
-                    // if the result set is not empty, then its products are printed out with their specifications
+                    // if the user wants a camera and lens and the result set is not empty, then its products are printed out with their specifications
                     if(answer == 1){
                         while(result.next()){
                             System.out.println("Brand: " + result.getString(1) + " | Model: "
@@ -387,6 +416,7 @@ public class uitest {
                         }
                     }
 
+                    // if the user only wants a lens and the result set is not empty, then its products are printed out with their specifications
                     else{
                         while(result.next()){
                             System.out.println("Brand: " + result.getString(1) + " | Focal Length: " + result.getString(2)
