@@ -18,8 +18,7 @@ public class uitest {
         // scanner that reads user input to tell which query to execute
         Scanner s = new Scanner(System.in);
 
-        boolean run = true;
-        while(run){
+       
         // print out the options
         System.out.println("1. You are a company that is closing down and would like to delete its catalog from the database.");
         System.out.println("2. You are looking for a camera and would like to see the cheapest and most expensive camera from every brand.");
@@ -57,9 +56,9 @@ public class uitest {
                 break;
             case 7:
                 System.out.println("Exiting...");
-                run = false;
+                System.exit(0);
         }
-    }
+    
 
     // scanner instance is closed
     s.close();
@@ -149,16 +148,103 @@ public class uitest {
     public static void method3(){
         Scanner scan = new Scanner(System.in);
 
+        System.out.println("\nWhat is your budget?");
+        int budget = scan.nextInt();
+        scan.nextLine();
 
-        System.out.println("\n1. Beginner\n2. Advanced\nPlease choose your skill level. Type the number corresponding to your choice and press enter.");
-        
-        ResultSet result = null;
+        System.out.println("\n1. Beginner\n2. Advanced\n\nPlease choose your skill level. Type the number corresponding to your choice and press enter.");
+        int skill = scan.nextInt();
+        scan.nextLine();
 
-        switch(scan.nextInt()){
+        switch(skill){
             case 1:
-                System.out.println("");
+                System.out.println("\n1. Sports\n2. Portrait\n3. Landscape\n4. Wildlife\n5. Events");
+                System.out.println("\nWhat are you mostly going to be shooting? Please type the number corresponding to your choice and hit enter.");
+                String topic = scan.nextLine();
+
+                String brand1 = null;
+                String brand2 = null;
+                String brand3 = null;
+
+                int brandid1;
+                int brandid2;
+                int brandid3;
+
+                int flend1 = 0;
+                int flend2 = 0;
+
+
+                switch(topic){
+                    case "Sports":
+                        brand1 = "Canon";
+                        brand2 = "Fujifilm";
+                        brand3 = "Sony";
+
+                        try(Connection connection = DriverManager.getConnection(connectionUrl)){
+                            ResultSet result = null;
+                            String query = "select id from brand where brand.name = ?";
+                            PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                            statement.setString(1, brand1);
+                            
+                            result = statement.executeQuery();
+                            
+                            brandid1 = result.getString
+                        }
+                        catch(Exception e){
+                            e.printStackTrace();
+                        }
+                        
+                    case "Portrait":
+                        brand1 = "Canon";
+                        brand2 = "Nikon";
+                        brand3 = "Leica";
+                    case "Landscape":
+                        brand1 = "Fujifilm";
+                        brand2 = "Sony";
+                        brand3 = "Pentax";
+                    case "Wildlife":
+                        brand1 = "Olympus";
+                        brand2 = "Panasonic";
+                        brand3 = "Nikon";
+                    case "Events":
+                        brand1 = "Canon";
+                        brand2 = "GoPro";
+                        brand3 = "Sony";
+
+                }
+
+               
+
                 break;
             case 2:
+                System.out.println("\n1. Canon\n2. Fujifilm\n3. Leica\n4. Nikon\n5. Sony\n6. Pentax\n7. Olympus\n8. GoPro\n9. Panasonic");
+                System.out.println("\nPlease type the name of the brand above that you would like to use and hit enter.");
+                String body_brand = scan.nextLine();
+
+                try(Connection connection = DriverManager.getConnection(connectionUrl)){
+                    String query = "select * from body inner join brand on body.brand = brand.id where brand.name = ? and body.price <= ?;";
+                    PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                    statement.setString(1, body_brand);
+                    statement.setInt(2, budget);
+                    ResultSet result = statement.executeQuery();
+
+                    System.out.println("\nHere are all of " + body_brand + "'s models that fit your budget: ");
+
+                    if(!result.next()){
+                        System.out.println("\n" + body_brand + " has no models within your budget.");
+                    }
+                    else{
+                        while(result.next()){
+                            System.out.println("\n" + "ID: " + result.getString(1) +
+                            " | Model: " + result.getString(3) + " | Price: $" +
+                            result.getString(4));
+                        }
+                    }
+                }
+
+                catch(Exception e){
+                    e.printStackTrace();
+                }
                 break;
         }
         
@@ -166,7 +252,7 @@ public class uitest {
     }
 
     public static void method4(){
-       
+       System.out.println("Here are our picks for the top camera/lens combinations from each camera company!");
     }
 
     /*
