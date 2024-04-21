@@ -534,7 +534,7 @@ public class uitest {
 
     public static void method4(){
 
-        System.out.println("Here is a random camera/lens combination! Enjoy!");
+        System.out.println("\nBelow is a recommended camera & lens combination. Enjoy!");
 
         try(Connection connection = DriverManager.getConnection(connectionUrl)){
             String query = "select top 1 brand.name, body.model, lens.FL_start, lens.FL_end, lens.aperture, "
@@ -544,12 +544,34 @@ public class uitest {
 
             PreparedStatement statement = connection.prepareStatement(query);
             ResultSet result = statement.executeQuery();
+            int fl = 0;
 
             while(result.next()){
-                System.out.println("Brand: " + result.getString(1) + " | Model: " + result.getString(2)
+                fl = result.getInt(4);
+                System.out.println("\nBrand: " + result.getString(1) + " | Model: " + result.getString(2)
                 + " | Focal Length: " + result.getString(3) + "-" + result.getString(4) + " | Aperture: "
                 + result.getString(5) + " | Price: $" + result.getString(6));
             }
+
+
+            String uses = null;
+
+            if(fl >= 0 && fl <= 35){
+                uses = "landscapes and events!";
+            }
+            else if(fl >= 36 && fl <= 70){
+                uses = "portraits!";
+            }
+            else{
+                if(fl >= 200){
+                    uses = "sports and wildlife!";
+                }
+                else{
+                    uses = "sports!";
+                }
+            }
+
+            System.out.println("\nThis camera would be best used for shooting " + uses);
         }
 
         catch(Exception e){
