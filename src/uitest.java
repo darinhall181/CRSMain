@@ -20,9 +20,9 @@ public class uitest {
 
        
         // print out the options
-        System.out.println("1. You are a company that is closing down and would like to delete its catalog from the database.");
+        System.out.println("1. You are a customer and would like to find a camera based on your preferences.");
         System.out.println("2. You are looking for a camera and would like to see the cheapest and most expensive camera from every brand.");
-        System.out.println("3. You are a customer and would like to find a camera based on your preferences.");
+        System.out.println("3. You are a company that is closing down and would like to delete its catalog from the database.");
         System.out.println("4. You are a customer and would like to know the average price of lenses with a specified aperture.");
         System.out.println("5. You are a company that would like to reduce the prices of your catalog by a specified amount for a sale.");
         System.out.println("6. You are a company that would like to add a new product to the market.");
@@ -65,8 +65,382 @@ public class uitest {
 
     }
 
-    // method that deletes every model produced by a given company from the database
+    // method that recommends camera/lens combinations within your budget based on your preferences
     public static void method1(){
+        // new scanner instance is created
+        Scanner scan = new Scanner(System.in);
+        // user prompt
+        System.out.println("\nWhat is your budget?");
+        // budget stores the user's budget
+        int budget = scan.nextInt();
+        scan.nextLine();
+
+        // menu and prompt for user's skill level
+        System.out.println("\n1. Beginner\n2. Advanced\n\nPlease choose your skill level. Type the number corresponding to your choice and press enter.");
+        // skill stores the integer corresponding to the user's choice
+        int skill = scan.nextInt();
+        scan.nextLine();
+
+        // different questions will be asked based on the user's skill level
+        // more general questions will be asked for beginners who know less about what they'd want
+        switch(skill){
+
+            // beginner
+            case 1:
+
+                // menu and prompt to determine photography subject
+                // this will determine what brand and focal length to suggest
+                System.out.println("\n1. Sports\n2. Portrait\n3. Landscape\n4. Wildlife\n5. Events");
+                System.out.println("\nWhat are you mostly going to be shooting? Please type the number corresponding to your choice and hit enter.");
+                int choice = scan.nextInt();
+                scan.nextLine();
+
+                // these variables will store the brand names that we have determined to work best for each type of photography
+                // each type of photography will be assigned three corresponding brands (which may overlap with other types of photography)
+                String brand1 = null;
+                String brand2 = null;
+                String brand3 = null;
+
+                // array to store the id numbers of the three brands
+                int[] brand_ids = new int[3];
+
+                // we want to filter by the FL_end attribute of the lens table
+                // these variables serve as the upper and lower bounds we want FL_end to fit between
+                int flend1 = 0;
+                int flend2 = 0;
+
+                // string storing the name of the topic the user wants to shoot
+                String topic = null;
+
+                // switch statement that will assign values to the variables defined above based on what the user wants to shoot
+                switch(choice){
+
+                    //sports
+                    case 1:
+                        brand1 = "Canon";
+                        brand2 = "Fujifilm";
+                        brand3 = "Sony";
+
+                        flend1 = 71;
+                        flend2 = 600;
+
+                        topic = "Sports";
+                        
+                        break;
+
+                    // portrait
+                    case 2:
+                        brand1 = "Canon";
+                        brand2 = "Nikon";
+                        brand3 = "Leica";
+
+                        flend1 = 36;
+                        flend2 = 70;
+
+                        topic = "Portrait";
+
+                        break;
+
+                    // landscape
+                    case 3:
+                        brand1 = "Fujifilm";
+                        brand2 = "Sony";
+                        brand3 = "Pentax";
+
+                        flend1 = 0;
+                        flend2 = 35;
+
+                        topic = "Landscape";
+
+                        break;
+
+                    // wildlife
+                    case 4:
+                        brand1 = "Olympus";
+                        brand2 = "Panasonic";
+                        brand3 = "Nikon";
+
+                        flend1 = 200;
+                        flend2 = 600;
+
+                        topic = "Wildlife";
+
+                        break;
+
+                    // events
+                    case 5:
+                        brand1 = "Canon";
+                        brand2 = "GoPro";
+                        brand3 = "Sony";
+
+                        flend1 = 0;
+                        flend2 = 35;
+
+                        topic = "Events";
+
+                        break;
+
+                }
+
+                // establish connection to the database
+                try(Connection connection = DriverManager.getConnection(connectionUrl)){
+
+                    // result1 will hold the id numbers of the three companies assigned above
+                    // query1 below takes the names of the companies defined above and populates the brand_ids array with their id numbers
+                    ResultSet result1 = null;
+                    String query1 = "select id from brand where brand.name = ? or brand.name = ? or brand.name = ?;";
+                    PreparedStatement statement1 = connection.prepareStatement(query1, Statement.RETURN_GENERATED_KEYS);
+                    statement1.setString(1, brand1);
+                    statement1.setString(2, brand2);
+                    statement1.setString(3, brand3);
+
+                    result1 = statement1.executeQuery();
+                    
+                    // populating the brand_ids array
+                    int index = 0;
+                    while(result1.next()){
+                        brand_ids[index] = result1.getInt(1);
+                        index++;
+                    }
+
+                    /*  result2 will store all the possible camera/lens combinations that are within the user's budget and that will work for the user's
+                        preferred application
+                    */ 
+                    ResultSet result2 = null;
+
+                    // the query ensures that only the three defined brands are represented and that the total price of the camera and lens are within the budget
+                    // the query also specifies that the lenses have focal lengths within the specified range, and the output is ordered by total price
+                    String query2 = "select brand.name, body.model, lens.FL_start, lens.FL_end, (body.price + lens.price) as total_price "
+                    + "from brand inner join body on brand.id = body.brand inner join body_lens on body.id = body_lens.body_id "
+                    + "inner join lens on body_lens.lens_id = lens.id where lens.FL_end >= ? and lens.FL_end <= ? and "
+                    + "(lens.price + body.price <= ?) and (brand.id = ? or brand.id = ? or brand.id = ?) order by total_price;";
+                    PreparedStatement statement2 = connection.prepareStatement(query2, Statement.RETURN_GENERATED_KEYS);
+                    System.out.println(flend1);
+                    System.out.println(flend2);
+                    statement2.setInt(1, flend1);
+                    statement2.setInt(2, flend2);
+                    statement2.setInt(3, budget);
+                    statement2.setInt(4, brand_ids[0]);
+                    statement2.setInt(5, brand_ids[1]);
+                    statement2.setInt(6, brand_ids[2]);
+
+                    result2 = statement2.executeQuery();
+
+                    // summary of the output set
+                    System.out.println("\nHere are all of the camera/lens combinations from cheapest to most expensive that are good for shooting "
+                     + topic.toLowerCase() + " that are under your budget.\n");
+
+                    // the output set is printed out
+                    while(result2.next()){
+                        System.out.println("Brand: " + result2.getString(1) + " | Model: " + result2.getString(2)
+                        + " | Focal Length: " + result2.getString(3) + "-" + result2.getString(4)
+                        + " | Total Price: " + result2.getString(5));
+                    }
+                }
+
+                catch(Exception e){
+                    e.printStackTrace();
+                }
+
+                break;
+
+            // advanced
+            case 2:
+                
+                // we assume advanced photographers know what brand they want to shoot with so their options are printed out
+                System.out.println("\n1. Canon\n2. Fujifilm\n3. Leica\n4. Nikon\n5. Sony\n6. Pentax\n7. Olympus\n8. GoPro\n9. Panasonic");
+                System.out.println("\nPlease type the name of the brand above that you would like to use and hit enter.");
+                String body_brand = scan.nextLine();
+
+                // brand_id will store the id of the brand identified by the user
+                int brand_id = 0;
+
+                try(Connection connection = DriverManager.getConnection(connectionUrl)){
+
+                    // this query will produce a set of all camera/lens combinations from the specified brand that are within the budget
+                    String query = "select * from body inner join brand on body.brand = brand.id "
+                    + " inner join body_lens on body_lens.body_id = body.id inner join lens on "
+                    + "body_lens.lens_id = lens.id where brand.name = ? and (body.price + lens.price) <= ?;";
+                    PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                    statement.setString(1, body_brand);
+                    statement.setInt(2, budget);
+                    ResultSet result = statement.executeQuery();
+
+                    System.out.println("\nHere are all of " + body_brand + "'s camera/lens combos that fit your budget: ");
+
+                    // this message will appear if there are no combinations that fit the specifications
+                    if(!result.isBeforeFirst()){
+                        System.out.println("\n" + body_brand + " has no models within your budget.");
+                    }
+
+                    // if there are combinations from the specified brand within the budget, they and their specifications will be printed out
+                    else{
+                        while(result.next()){
+                            brand_id = result.getInt(2);
+                            System.out.println("\n" + "ID: " + result.getString(1) +
+                            " | Model: " + result.getString(3) + " | Focal Length: " + 
+                            result.getString(15) + "-" + result.getString(16) + " | Aperture: "
+                            + result.getString(18) + " | Price: $" + (result.getInt(4) + result.getInt(14)));
+                        }
+                    }
+                }
+
+                catch(Exception e){
+                    e.printStackTrace();
+                }
+
+                // after the above set is printed out, the user will decide whether they want a camera and a lens or just a lens
+                // advanced photographers might already have a camera they like and as such, might only need a new lens to go with it
+                System.out.println("\n1. New camera and lens\n2. New lens only\n\n"
+                +"Are you looking for a new camera and a new lens or a new lens only?"
+                +" Please type the number corresponding to your choice.");
+
+                // answer stores the option the user chose
+                int answer = scan.nextInt();
+                scan.nextLine();
+
+                // the user is prompted to input what type of lens they want to buy
+                // this will determine by what focal lengths the lenses are filtered by
+                System.out.println("\n1. Wide\n2. Standard\n3. Telephoto\n\nPlease type the number "
+                + "corresponding to the type of lens you would like and hit enter.");
+
+                // lens_type stores the number corresponding to the type of lens the user chose
+                int lens_type = scan.nextInt();
+                scan.nextLine();
+
+                // flstart and flend store the upper and lower bounds for the FL_end attribute of the lens table
+                int flstart = 0;
+                int flend = 0;
+
+                // upper and lower bounds are assigned based on the type of lens chosen
+                switch(lens_type){
+
+                    // wide
+                    case 1:
+                        flstart = 0;
+                        flend = 35;
+                        break;
+
+                    // standard
+                    case 2:
+                        flstart = 36;
+                        flend = 70;
+                        break;
+
+                    // telephoto
+                    case 3:
+                        flstart = 71;
+                        flend = 600;
+                        break;
+                }
+
+                try(Connection connection = DriverManager.getConnection(connectionUrl)){
+
+                    // a query is created to find camera/lens combinations or indivdual lenses that match the user's parameters
+                    String query;
+
+                    // if the user wants both a camera and a lens, we need to return camera/lens combinations
+                    if(answer == 1){
+                        query = "select brand.name, body.model, lens.FL_start, lens.FL_end, (body.price + lens.price) as total"
+                        + " from brand inner join body on brand.id = body.brand inner join body_lens on body.id = body_lens.body_id"
+                        + " inner join lens on body_lens.lens_id = lens.id where lens.FL_end >= ? and lens.FL_end <= ? and"
+                        + " body.price + lens.price <= ? and brand.id = ? order by (body.price + lens.price);";
+                    }
+
+                    // if the user only wants a lens, we only need to return lenses
+                    else{
+                        query = "select brand.name, lens.FL_start, lens.FL_end, lens.aperture, lens.price"
+                        + " from brand inner join lens on lens.brand = brand.id where lens.FL_end >= ? and lens.FL_end <= ? and"
+                        + " lens.price <= ? and brand.id = ? order by lens.price;";
+                    }
+
+                    // the query is filled with the user's parameters
+                    PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                    statement.setInt(1, flstart);
+                    statement.setInt(2, flend);
+                    statement.setInt(3, budget);
+                    statement.setInt(4, brand_id);
+
+                    // message to be displayed if the user wants both a camera and a lens
+                    if(answer == 1){
+                        System.out.println("\nHere are all of the camera/lens combos that fit your parameters, from cheapest to most expensive.\n");
+                    }
+
+                    // message to be displayed if the user only wants a lens
+                    else{
+                        System.out.println("\nHere are all of the lenses that fit your parameters, from cheapest to most expensive.\n");
+                    }
+
+                    ResultSet result = statement.executeQuery();
+
+                    // if the result set is empty, a message is printed out
+                    if (!result.isBeforeFirst()) {    
+                        System.out.println("There were no products that matched your parameters :( Please try again."); 
+                    } 
+                    
+                    // if the result set is not empty, then its products are printed out with their specifications
+                    if(answer == 1){
+                        while(result.next()){
+                            System.out.println("Brand: " + result.getString(1) + " | Model: "
+                            + result.getString(2) + " | Focal Length: " + result.getString(3) + "-"
+                            + result.getString(4) + " | Total Price: $" + result.getString(5));
+                        }
+                    }
+
+                    else{
+                        while(result.next()){
+                            System.out.println("Brand: " + result.getString(1) + " | Focal Length: " + result.getString(2)
+                            + "-" + result.getString(3) + " | Aperture: " + result.getString(4) + " | Price: $"
+                            + result.getString(5));
+                        }
+                    }
+                }
+
+                catch(Exception e){
+                    e.printStackTrace();
+                }
+
+                break;
+        }
+        
+        // the scanner is closed
+        scan.close();
+    }
+
+    
+
+    public static void method2(){
+        System.out.println("\nWould you like to know the cheapest and most expensive camera body from every brand? Type yes to continue.");
+        Scanner scan = new Scanner(System.in);
+        String answer = scan.nextLine();
+        scan.close();
+
+        ResultSet result = null;
+
+        if(answer.equals("yes")){
+            try(Connection connection = DriverManager.getConnection(connectionUrl)){
+                String query = "select min(body.price) as min_price, max(body.price) as max_price, brand.name\r\n" + //
+                        "from body inner join brand on body.brand = brand.id\r\n" + //
+                        "group by brand.name;";
+                PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                result = statement.executeQuery();
+
+                while (result.next()) {
+                    System.out.println("Brand: " + result.getString(3) + " | Cheapest: " + result.getString(1) + " | Most Expensive: " + result.getString(2));
+                }
+
+            }
+            catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+        else{
+            System.out.println("Okay, please choose another option from the menu.");
+        }
+    }
+
+    // method that deletes every model produced by a given company from the database
+    public static void method3(){
 
         // the user is prompted and a scanner records the name of the brand that the user inputs
         System.out.println("\nWhat is the name of your brand?");
@@ -115,412 +489,12 @@ public class uitest {
 
     }
 
-    public static void method2(){
-        System.out.println("\nWould you like to know the cheapest and most expensive camera body from every brand? Type yes to continue.");
-        Scanner scan = new Scanner(System.in);
-        String answer = scan.nextLine();
-        scan.close();
 
-        ResultSet result = null;
-
-        if(answer.equals("yes")){
-            try(Connection connection = DriverManager.getConnection(connectionUrl)){
-                String query = "select min(body.price) as min_price, max(body.price) as max_price, brand.name\r\n" + //
-                        "from body inner join brand on body.brand = brand.id\r\n" + //
-                        "group by brand.name;";
-                PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                result = statement.executeQuery();
-
-                while (result.next()) {
-                    System.out.println("Brand: " + result.getString(3) + " | Cheapest: " + result.getString(1) + " | Most Expensive: " + result.getString(2));
-                }
-
-            }
-            catch(Exception e){
-                e.printStackTrace();
-            }
-        }
-        else{
-            System.out.println("Okay, please choose another option from the menu.");
-        }
-    }
-
-    public static void method3(){
-        Scanner scan = new Scanner(System.in);
-
-        System.out.println("\nWhat is your budget?");
-        int budget = scan.nextInt();
-        scan.nextLine();
-
-        System.out.println("\n1. Beginner\n2. Advanced\n\nPlease choose your skill level. Type the number corresponding to your choice and press enter.");
-        int skill = scan.nextInt();
-        scan.nextLine();
-
-        switch(skill){
-            case 1:
-                System.out.println("\n1. Sports\n2. Portrait\n3. Landscape\n4. Wildlife\n5. Events");
-                System.out.println("\nWhat are you mostly going to be shooting? Please type the name of your choice and hit enter.");
-                String topic = scan.nextLine();
-
-                String brand1 = null;
-                String brand2 = null;
-                String brand3 = null;
-
-                int[] brand_ids = new int[3];
-
-                int flend1 = 0;
-                int flend2 = 0;
-
-
-                switch(topic){
-                    case "Sports":
-                        brand1 = "Canon";
-                        brand2 = "Fujifilm";
-                        brand3 = "Sony";
-
-                        flend1 = 71;
-                        flend2 = 600;
-
-                        try(Connection connection = DriverManager.getConnection(connectionUrl)){
-                            ResultSet result = null;
-                            String query = "select id from brand where brand.name = ? or brand.name = ? or brand.name = ?;";
-                            PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                            statement.setString(1, brand1);
-                            statement.setString(2, brand2);
-                            statement.setString(3, brand3);
-
-                            result = statement.executeQuery();
-                            
-                            int index = 0;
-                            while(result.next()){
-                                brand_ids[index] = result.getInt(1);
-                                index++;
-                            }
-
-
-                        }
-                        catch(Exception e){
-                            e.printStackTrace();
-                        }
-                        
-                        break;
-                        
-                    case "Portrait":
-                        brand1 = "Canon";
-                        brand2 = "Nikon";
-                        brand3 = "Leica";
-
-                        flend1 = 36;
-                        flend2 = 70;
-
-                        try(Connection connection = DriverManager.getConnection(connectionUrl)){
-                            ResultSet result = null;
-                            String query = "select id from brand where brand.name = ? or brand.name = ? or brand.name = ?;";
-                            PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                            statement.setString(1, brand1);
-                            statement.setString(2, brand2);
-                            statement.setString(3, brand3);
-
-                            result = statement.executeQuery();
-                            
-                            int index = 0;
-                            while(result.next()){
-                                brand_ids[index] = result.getInt(1);
-                                index++;
-                            }
-
-
-                        }
-                        catch(Exception e){
-                            e.printStackTrace();
-                        }
-
-                        break;
-
-                    case "Landscape":
-                        brand1 = "Fujifilm";
-                        brand2 = "Sony";
-                        brand3 = "Pentax";
-
-                        flend1 = 0;
-                        flend2 = 35;
-
-                        try(Connection connection = DriverManager.getConnection(connectionUrl)){
-                            ResultSet result = null;
-                            String query = "select id from brand where brand.name = ? or brand.name = ? or brand.name = ?;";
-                            PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                            statement.setString(1, brand1);
-                            statement.setString(2, brand2);
-                            statement.setString(3, brand3);
-
-                            result = statement.executeQuery();
-                            
-                            int index = 0;
-                            while(result.next()){
-                                brand_ids[index] = result.getInt(1);
-                                index++;
-                            }
-
-
-                        }
-                        catch(Exception e){
-                            e.printStackTrace();
-                        }
-
-                        break;
-
-                    case "Wildlife":
-                        brand1 = "Olympus";
-                        brand2 = "Panasonic";
-                        brand3 = "Nikon";
-
-                        flend1 = 200;
-                        flend2 = 600;
-
-                        try(Connection connection = DriverManager.getConnection(connectionUrl)){
-                            ResultSet result = null;
-                            String query = "select id from brand where brand.name = ? or brand.name = ? or brand.name = ?;";
-                            PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                            statement.setString(1, brand1);
-                            statement.setString(2, brand2);
-                            statement.setString(3, brand3);
-
-                            result = statement.executeQuery();
-                            
-                            int index = 0;
-                            while(result.next()){
-                                brand_ids[index] = result.getInt(1);
-                                index++;
-                            }
-
-
-                        }
-                        catch(Exception e){
-                            e.printStackTrace();
-                        }
-
-                        break;
-
-                    case "Events":
-                        brand1 = "Canon";
-                        brand2 = "GoPro";
-                        brand3 = "Sony";
-
-                        flend1 = 0;
-                        flend2 = 35;
-
-                        try(Connection connection = DriverManager.getConnection(connectionUrl)){
-                            ResultSet result = null;
-                            String query = "select id from brand where brand.name = ? or brand.name = ? or brand.name = ?;";
-                            PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                            statement.setString(1, brand1);
-                            statement.setString(2, brand2);
-                            statement.setString(3, brand3);
-
-                            result = statement.executeQuery();
-                            
-                            int index = 0;
-                            while(result.next()){
-                                brand_ids[index] = result.getInt(1);
-                                index++;
-                            }
-
-
-                        }
-                        catch(Exception e){
-                            e.printStackTrace();
-                        }
-
-                        break;
-
-                }
-
-                try(Connection connection = DriverManager.getConnection(connectionUrl)){
-                    ResultSet result = null;
-                    String query = "select brand.name, body.model, lens.FL_start, lens.FL_end, (body.price + lens.price) as total_price "
-                    + "from brand inner join body on brand.id = body.brand inner join body_lens on body.id = body_lens.body_id "
-                    + "inner join lens on body_lens.lens_id = lens.id where lens.FL_end >= ? and lens.FL_end <= ? and "
-                    + "(lens.price + body.price <= ?) and (brand.id = ? or brand.id = ? or brand.id = ?) order by total_price;";
-                    PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                    System.out.println(flend1);
-                    System.out.println(flend2);
-                    statement.setInt(1, flend1);
-                    statement.setInt(2, flend2);
-                    statement.setInt(3, budget);
-                    statement.setInt(4, brand_ids[0]);
-                    statement.setInt(5, brand_ids[1]);
-                    statement.setInt(6, brand_ids[2]);
-
-                    result = statement.executeQuery();
-
-                    System.out.println("\nHere are all of the camera/lens combinations from cheapest to most expensive that are good for shooting "
-                     + topic.toLowerCase() + " that are under your budget.\n");
-
-                    while(result.next()){
-                        System.out.println("Brand: " + result.getString(1) + " | Model: " + result.getString(2)
-                        + " | Focal Length: " + result.getString(3) + "-" + result.getString(4)
-                        + " | Total Price: " + result.getString(5));
-                    }
-                }
-
-                catch(Exception e){
-                    e.printStackTrace();
-                }
-
-
-               
-
-                break;
-            case 2:
-                System.out.println("\n1. Canon\n2. Fujifilm\n3. Leica\n4. Nikon\n5. Sony\n6. Pentax\n7. Olympus\n8. GoPro\n9. Panasonic");
-                System.out.println("\nPlease type the name of the brand above that you would like to use and hit enter.");
-                String body_brand = scan.nextLine();
-
-                int brand_id = 0;
-
-                try(Connection connection = DriverManager.getConnection(connectionUrl)){
-                    String query = "select * from body inner join brand on body.brand = brand.id "
-                    + " inner join body_lens on body_lens.body_id = body.id inner join lens on "
-                    + "body_lens.lens_id = lens.id where brand.name = ? and (body.price + lens.price) <= ?;";
-                    PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                    statement.setString(1, body_brand);
-                    statement.setInt(2, budget);
-                    ResultSet result = statement.executeQuery();
-
-                    System.out.println("\nHere are all of " + body_brand + "'s camera/lens combos that fit your budget: ");
-
-
-                    if(!result.next()){
-                        System.out.println("\n" + body_brand + " has no models within your budget.");
-                    }
-                    else{
-                        while(result.next()){
-                            brand_id = result.getInt(2);
-                            System.out.println("\n" + "ID: " + result.getString(1) +
-                            " | Model: " + result.getString(3) + " | Focal Length: " + 
-                            result.getString(15) + "-" + result.getString(16) + " | Aperture: "
-                            + result.getString(18) + " | Price: $" + (result.getInt(4) + result.getInt(14)));
-                        }
-                    }
-                }
-
-                catch(Exception e){
-                    e.printStackTrace();
-                }
-
-                System.out.println("\n1. New camera and lens\n2. New lens only\n\n"
-                +"Are you looking for a new camera and a new lens or a new lens only?"
-                +" Please type the number corresponding to your choice.");
-
-                int choice = scan.nextInt();
-                scan.nextLine();
-
-                System.out.println("\n1. Wide\n2. Standard\n3. Telephoto\n\nPlease type the number "
-                + "corresponding to the type of lens you would like and hit enter.");
-
-                int lens_type = scan.nextInt();
-                scan.nextLine();
-
-                int flstart = 0;
-                int flend = 0;
-
-                switch(lens_type){
-                    case 1:
-                        flstart = 0;
-                        flend = 35;
-                        break;
-                    case 2:
-                        flstart = 36;
-                        flend = 70;
-                        break;
-                    case 3:
-                        flstart = 71;
-                        flend = 600;
-                        break;
-                }
-
-                try(Connection connection = DriverManager.getConnection(connectionUrl)){
-                    String query;
-                    if(choice == 1){
-                        query = "select brand.name, body.model, lens.FL_start, lens.FL_end, (body.price + lens.price) as total"
-                        + " from brand inner join body on brand.id = body.brand inner join body_lens on body.id = body_lens.body_id"
-                        + " inner join lens on body_lens.lens_id = lens.id where lens.FL_end >= ? and lens.FL_end <= ? and"
-                        + " body.price + lens.price <= ? and brand.id = ? order by (body.price + lens.price);";
-                    }
-                    else{
-                        query = "select brand.name, lens.FL_start, lens.FL_end, lens.price"
-                        + " from brand inner join lens on body_lens.lens_id = lens.id where lens.FL_end >= ? and lens.FL_end <= ? and"
-                        + " lens.price <= ? and brand.id = ? order by lens.price;";
-                    }
-
-                    PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                    statement.setInt(1, flstart);
-                    statement.setInt(2, flend);
-                    statement.setInt(3, budget);
-                    statement.setInt(4, brand_id);
-
-
-                    if(choice == 1){
-                        System.out.println("\nHere are all of the camera/lens combos that fit your parameters, from cheapest to most expensive.\n");
-                    }
-
-                    else{
-                        System.out.println("\nHere are all of the lenses that fit your parameters, from cheapest to most expensive.\n");
-                    }
-
-                    ResultSet result = statement.executeQuery();
-
-                    if (!result.isBeforeFirst() ) {    
-                        System.out.println("There were no products that matched your parameters :( Please try again."); 
-                    } 
-                    
-                    while(result.next()){
-                        System.out.println("Brand: " + result.getString(1) + " | Model: "
-                        + result.getString(2) + " | Focal Length: " + result.getString(3) + "-"
-                        + result.getString(4) + " | Total Price: $" + result.getString(5));
-                    }
-                }
-
-                catch(Exception e){
-                    e.printStackTrace();
-                }
-
-                break;
-        }
-        
-        scan.close();
-    }
 
     public static void method4(){
        System.out.println("Here are our picks for the top camera/lens combinations from each camera company!");
     }
 
-    /*
-    public static void method4(){
-        System.out.println("What aperture would you like to evaluate?");
-        Scanner scan = new Scanner(System.in);
-        String aperture = scan.nextLine();
-        scan.close();
-
-        ResultSet result = null;
-
-        try(Connection connection = DriverManager.getConnection(connectionUrl)){
-            String query = "select avg(price) as avg_price\r\n" + //
-                    "from lens\r\n" + //
-                    "where aperature = ?;";
-            PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            statement.setString(1, aperture);
-            result = statement.executeQuery();
-            while (result.next()) {
-                System.out.println("The average price of lenses with aperture " + aperture.toString() + " is $" + result.getString(1));
-            }
-        }
-
-        catch(Exception e){
-            e.printStackTrace();
-        }
-    }
-    */
 
     public static void method5(){
         Scanner scan = new Scanner(System.in);
