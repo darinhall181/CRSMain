@@ -23,7 +23,7 @@ public class uitest {
         System.out.println("1. You are a customer and would like to find a camera based on your preferences.");
         System.out.println("2. You are looking for a camera and would like to see the cheapest and most expensive camera from every brand.");
         System.out.println("3. You are a company that is closing down and would like to delete its catalog from the database.");
-        System.out.println("4. You are a customer and would like to know the average price of lenses with a specified aperture.");
+        System.out.println("4. I'm Feeling Lucky");
         System.out.println("5. You are a company that would like to reduce the prices of your catalog by a specified amount for a sale.");
         System.out.println("6. You are a company that would like to add a new product to the market.");
         System.out.println("7. Exit");
@@ -437,16 +437,19 @@ public class uitest {
         scan.close();
     }
 
-    
-
+    // method that returns the cheapest and most expensive camera body from each brand
     public static void method2(){
+
+        // prompt and input for the user to confirm that the correct use case has been chosen
         System.out.println("\nWould you like to know the cheapest and most expensive camera body from every brand? Type yes to continue.");
         Scanner scan = new Scanner(System.in);
         String answer = scan.nextLine();
         scan.close();
 
+        // result will store the output set
         ResultSet result = null;
 
+        // if the user confirms that the use case is correct, a query will be run to find the requested query
         if(answer.equals("yes")){
             try(Connection connection = DriverManager.getConnection(connectionUrl)){
                 String query = "select min(body.price) as min_price, max(body.price) as max_price, brand.name\r\n" + //
@@ -464,6 +467,8 @@ public class uitest {
                 e.printStackTrace();
             }
         }
+
+        // if the user says anything besides 'yes' they will be prompted to choose another option
         else{
             System.out.println("Okay, please choose another option from the menu.");
         }
@@ -489,22 +494,27 @@ public class uitest {
             statement1.setString(1, brand);
             result = statement1.executeQuery();
 
-            //
+            // brand_id will store the id number of the brand we want to delete from
             String brand_id = null;
             while(result.next()){
                 brand_id = result.getString(1);
             }
 
+            // query2 will delete every body from the selected brand id
+            // every table with body_id as a foreign key will have its corresponding tuples deleted
             String query2 = "delete from body where brand = ?;";
             PreparedStatement statement2 = connection.prepareStatement(query2);
             statement2.setString(1, brand_id);
             statement2.execute();
 
+            // query3 will delete every lens from the selected brand id
+            // every table with lens_id as a foreign key will have its corresponding tuples deleted
             String query3 = "delete from lens where brand = ?;";
             PreparedStatement statement3 = connection.prepareStatement(query3);
             statement3.setString(1, brand_id);
             statement3.execute();
 
+            // query4 will delete the specified brand from the brand table
             String query4 = "delete from brand where name = ?;";
             PreparedStatement statement4 = connection.prepareStatement(query4);
             statement4.setString(1, brand);
@@ -515,6 +525,7 @@ public class uitest {
             e.printStackTrace();
         }
 
+        // confirmation that the query worked
         System.out.println("\nYour brand's data has been deleted.");
 
     }
@@ -522,22 +533,54 @@ public class uitest {
 
 
     public static void method4(){
-       System.out.println("Here are our picks for the top camera/lens combinations from each camera company!");
+
+        System.out.println("Here is a random camera/lens combination! Enjoy!");
+
+        try(Connection connection = DriverManager.getConnection(connectionUrl)){
+            String query = "select top 1 brand.name, body.model, lens.FL_start, lens.FL_end, lens.aperture, "
+            + "body.price + lens.price as total_price from brand inner join body on brand.id = body.brand "
+            + "inner join body_lens on body_lens.body_id = body.id inner join lens on "
+            + "body_lens.lens_id = lens.id where body.id = (SELECT TOP 1 id FROM body ORDER BY NEWID());";
+
+            PreparedStatement statement = connection.prepareStatement(query);
+            ResultSet result = statement.executeQuery();
+
+            while(result.next()){
+                System.out.println("Brand: " + result.getString(1) + " | Model: " + result.getString(2)
+                + " | Focal Length: " + result.getString(3) + "-" + result.getString(4) + " | Aperture: "
+                + result.getString(5) + " | Price: $" + result.getString(6));
+            }
+        }
+
+        catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
-
+    // method that will increase or decrease a brand's prices by a specified amount
     public static void method5(){
+
+        // scan records user input
         Scanner scan = new Scanner(System.in);
         System.out.println("\nWhat is the name of your brand?");
+        
+        // brand stores the name of the brand
         String brand = scan.nextLine();
-        System.out.println("\nWould you like to reduce your prices by a dollar amount or a percentage? Choose the number corresponding to your choice.\n1. Dollar \n2. Percentage");
+        System.out.println("\nWould you like to reduce your prices by a dollar amount or a percentage? "
+        + "Choose the number corresponding to your choice.\n1. Dollar \n2. Percentage");
+        
+        // choice stores whether the user wants to change their prices by a dollar amount or a percentage
         int choice = scan.nextInt();
 
-
+        // different code will be implemented depending on whether the user chose a dollar amount or percentage
         switch(choice){
+            
+            // dollar amount
             case 1:
                 Scanner s = new Scanner(System.in);
                 System.out.println("\nHow much would you like to change your prices by? Enter a negative number if you would like to decrease your prices.");
+                
+                // dollar_amount stores the amount in dollars that the user wants to change their prices by
                 String dollar_amount = s.nextLine();
                 s.close();
                 try(Connection connection = DriverManager.getConnection(connectionUrl)){
