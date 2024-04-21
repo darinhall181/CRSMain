@@ -215,8 +215,7 @@ public class uitest {
                     + "inner join lens on body_lens.lens_id = lens.id where lens.FL_end >= ? and lens.FL_end <= ? and "
                     + "(lens.price + body.price <= ?) and (brand.id = ? or brand.id = ? or brand.id = ?) order by total_price;";
                     PreparedStatement statement2 = connection.prepareStatement(query2, Statement.RETURN_GENERATED_KEYS);
-                    System.out.println(flend1);
-                    System.out.println(flend2);
+
                     statement2.setInt(1, flend1);
                     statement2.setInt(2, flend2);
                     statement2.setInt(3, budget);
@@ -305,8 +304,8 @@ public class uitest {
                         if(answer == 1){
                             while(result.next()){
                                 brand_id = result.getInt(2);
-                                System.out.println("\n" + "ID: " + result.getString(1) +
-                                " | Model: " + result.getString(3) + " | Focal Length: " + 
+                                System.out.println("\n" + 
+                                "Model: " + result.getString(3) + " | Focal Length: " + 
                                 result.getString(15) + "-" + result.getString(16) + " | Aperture: "
                                 + result.getString(18) + " | Price: $" + (result.getInt(4) + result.getInt(14)));
                             }
@@ -404,13 +403,13 @@ public class uitest {
 
                     // if the result set is empty, a message is printed out
                     if (!result.isBeforeFirst()) {    
-                        System.out.println("There were no products that matched your parameters :( Please try again."); 
+                        System.out.println("\nThere were no products that matched your parameters :( Please try again."); 
                     } 
                     
                     // if the user wants a camera and lens and the result set is not empty, then its products are printed out with their specifications
                     if(answer == 1){
                         while(result.next()){
-                            System.out.println("Brand: " + result.getString(1) + " | Model: "
+                            System.out.println("\nBrand: " + result.getString(1) + " | Model: "
                             + result.getString(2) + " | Focal Length: " + result.getString(3) + "-"
                             + result.getString(4) + " | Total Price: $" + result.getString(5));
                         }
@@ -419,7 +418,7 @@ public class uitest {
                     // if the user only wants a lens and the result set is not empty, then its products are printed out with their specifications
                     else{
                         while(result.next()){
-                            System.out.println("Brand: " + result.getString(1) + " | Focal Length: " + result.getString(2)
+                            System.out.println("\nBrand: " + result.getString(1) + " | Focal Length: " + result.getString(2)
                             + "-" + result.getString(3) + " | Aperture: " + result.getString(4) + " | Price: $"
                             + result.getString(5));
                         }
