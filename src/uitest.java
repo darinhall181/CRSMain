@@ -661,7 +661,7 @@ public class uitest {
                     statement1.executeQuery();
 
                     // every lens belonging to the specified brand is updated by the specified percentage
-                    String query2 = "update b set b.price = b.price * (1 + ? / 100) from body b inner join brand x on b.brand = x.id where x.name = ?;";
+                    String query2 = "update l set l.price = l.price * (1 + ? / 100) from lens l inner join brand x on l.brand = x.id where x.name = ?;";
                     PreparedStatement statement2 = connection.prepareStatement(query2, Statement.RETURN_GENERATED_KEYS);
                     statement2.setString(1, percent);
                     statement2.setString(2, brand);
