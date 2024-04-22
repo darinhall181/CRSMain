@@ -757,12 +757,13 @@ public class uitest {
                     while(result.next()){
                         System.out.println("\nYour camera body has been added to the database. Its id number is: " + result.getString(1));
                     }
-                    break;
                    
                 }
                 catch(Exception e){
                     e.printStackTrace();
                 }
+
+                break;
            
             // lens
             case 2:
@@ -779,26 +780,27 @@ public class uitest {
                 // type stores the type of the lens (prime or zoom)
                 String type = null;
                 // fl_start stores the lower bound of the focal length
-                String fl_start = null;
+                int fl_start = 0;
                 // fl_end stores the upper bound of the focal length
-                String fl_end = null;
+                int fl_end = 0;
 
                 // if the lens is a prime lens
                 if(scan.nextInt() == 1){
                     type = "prime";
-                    System.out.println("What is the focal length of your lens?");
+                    System.out.println("\nWhat is the focal length of your lens?");
                     // if the lens is a prime, then both the upper and lower bound of the focal length are the same
-                    fl_start = scan.nextLine();
+                    fl_start = scan.nextInt();
                     fl_end = fl_start;
                 }
                 // if the lens is a zoom lens
                 else{
                     type = "zoom";
                     // both the upper and lower bounds of the focal length need to be specified
-                    System.out.println("What is the lower bound of your lens' focal length?");
-                    fl_start = scan.nextLine();
-                    System.out.println("What is the upper bound of your lens' focal length?");
-                    fl_end = scan.nextLine();
+                    System.out.println("\nWhat is the lower bound of your lens' focal length?");
+                    fl_start = scan.nextInt();
+                    scan.nextLine();
+                    System.out.println("\nWhat is the upper bound of your lens' focal length?");
+                    fl_end = scan.nextInt();
                 }
                 
                 // aperture stores the aperture of the lens
@@ -807,12 +809,12 @@ public class uitest {
 
                 // the below query and statement will insert a lens with the given parameters into the database
                 try(Connection connection = DriverManager.getConnection(connectionUrl)){
-                    String query1 = "insert into lens(brand, price, FL_start, FL_end, type, aperture) values((select id from brand where name = ?), ?, ?, ?, ?);";
+                    String query1 = "insert into lens(brand, price, FL_start, FL_end, type, aperture) values((select id from brand where name = ?), ?, ?, ?, ?, ?);";
                     PreparedStatement statement1 = connection.prepareStatement(query1, Statement.RETURN_GENERATED_KEYS);
                     statement1.setString(1, brand);
                     statement1.setInt(2, lens_price);
-                    statement1.setString(3, fl_start);
-                    statement1.setString(4, fl_end);
+                    statement1.setInt(3, fl_start);
+                    statement1.setInt(4, fl_end);
                     statement1.setString(5, type);
                     statement1.setFloat(6, aperture);
 
@@ -827,6 +829,8 @@ public class uitest {
                 catch(Exception e){
                     e.printStackTrace();
                 }
+
+                break;
            
             // gear
             case 3:
@@ -880,6 +884,7 @@ public class uitest {
                     e.printStackTrace();
                 }
                
+                break;
         }
     }
 

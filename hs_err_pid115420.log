@@ -1,0 +1,223 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (mmap) failed to map 268435456 bytes for Failed to commit area from 0x0000000700000000 to 0x0000000710000000 of length 268435456.
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   The process is running with CompressedOops enabled, and the Java Heap may be blocking the growth of the native heap
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (os_windows.cpp:3386), pid=115420, tid=103324
+#
+# JRE version:  (11.0.21+9) (build )
+# Java VM: OpenJDK 64-Bit Server VM (11.0.21+9-LTS, mixed mode, sharing, tiered, compressed oops, g1 gc, windows-amd64)
+# Core dump will be written. Default location: C:\Users\jab525\Documents\GitHub\CRSMain\hs_err_pid115420.mdmp
+#
+
+---------------  S U M M A R Y ------------
+
+Command Line: -agentlib:jdwp=transport=dt_socket,server=n,suspend=y,address=localhost:52507 uitest
+
+Host: Intel(R) Xeon(R) Gold 6248R CPU @ 3.00GHz, 8 cores, 15G,  Windows Server 2019 , 64 bit Build 17763 (10.0.17763.4974)
+Time: Sun Apr 21 22:34:14 2024 Eastern Daylight Time elapsed time: 0.050528 seconds (0d 0h 0m 0s)
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00000243bb2b4000):  JavaThread "Unknown thread" [_thread_in_vm, id=103324, stack(0x00000045c4f00000,0x00000045c5000000)]
+
+Stack: [0x00000045c4f00000,0x00000045c5000000]
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [jvm.dll+0x65074a]
+V  [jvm.dll+0x7e4ad9]
+V  [jvm.dll+0x7e61d9]
+V  [jvm.dll+0x7e68c3]
+V  [jvm.dll+0x26a325]
+V  [jvm.dll+0x64d969]
+V  [jvm.dll+0x641ee5]
+V  [jvm.dll+0x32933c]
+V  [jvm.dll+0x3291c2]
+V  [jvm.dll+0x32dd96]
+V  [jvm.dll+0x375d52]
+V  [jvm.dll+0x3757b1]
+V  [jvm.dll+0x304a78]
+V  [jvm.dll+0x305b75]
+V  [jvm.dll+0x7bdbc7]
+V  [jvm.dll+0x7bf38f]
+V  [jvm.dll+0x383119]
+V  [jvm.dll+0x79fd2f]
+V  [jvm.dll+0x3f41d7]
+V  [jvm.dll+0x3f66c1]
+C  [jli.dll+0x52ef]
+C  [ucrtbase.dll+0x2268a]
+C  [KERNEL32.DLL+0x17ac4]
+C  [ntdll.dll+0x5a4e1]
+
+
+---------------  P R O C E S S  ---------------
+
+Threads class SMR info:
+_java_thread_list=0x00000243b8d98cf0, length=0, elements={
+}
+
+Java Threads: ( => current thread )
+
+Other Threads:
+  0x00000243bb2cb800 GCTaskThread "GC Thread#0" [stack: 0x00000045c5000000,0x00000045c5100000] [id=121604]
+  0x00000243bad4a800 ConcurrentGCThread "G1 Main Marker" [stack: 0x00000045c5100000,0x00000045c5200000] [id=96964]
+  0x00000243bad4c000 ConcurrentGCThread "G1 Conc#0" [stack: 0x00000045c5200000,0x00000045c5300000] [id=98588]
+
+[error occurred during error reporting (printing all threads), id 0xc0000005, EXCEPTION_ACCESS_VIOLATION (0xc0000005) at pc=0x00007ffb791e54b7]
+
+VM state:not at safepoint (not fully initialized)
+
+VM Mutex/Monitor currently owned by a thread:  ([mutex/lock_event])
+[0x00000243bb2b2c30] Heap_lock - owner thread: 0x00000243bb2b4000
+
+Heap address: 0x0000000700000000, size: 4096 MB, Compressed Oops mode: Non-zero based: 0x0000000700000000
+Narrow klass base: 0x0000000000000000, Narrow klass shift: 0
+
+GC Heap History (0 events):
+No events
+
+Deoptimization events (0 events):
+No events
+
+Classes redefined (0 events):
+No events
+
+Internal exceptions (0 events):
+No events
+
+Events (1 events):
+Event: 0.023 Loaded shared library C:\Program Files\Microsoft\jdk-11.0.21.9-hotspot\bin\zip.dll
+
+
+Dynamic libraries:
+0x00007ff6cb210000 - 0x00007ff6cb21e000 	C:\Program Files\Microsoft\jdk-11.0.21.9-hotspot\bin\java.exe
+0x00007ffbf2120000 - 0x00007ffbf230e000 	C:\Windows\SYSTEM32\ntdll.dll
+0x00007ffbf0d70000 - 0x00007ffbf0e23000 	C:\Windows\System32\KERNEL32.DLL
+0x00007ffbeef40000 - 0x00007ffbef1dd000 	C:\Windows\System32\KERNELBASE.dll
+0x00007ffbee5c0000 - 0x00007ffbee6ba000 	C:\Windows\System32\ucrtbase.dll
+0x00007ffbc6950000 - 0x00007ffbc696b000 	C:\Program Files\Microsoft\jdk-11.0.21.9-hotspot\bin\VCRUNTIME140.dll
+0x00007ffbc41a0000 - 0x00007ffbc41b7000 	C:\Program Files\Microsoft\jdk-11.0.21.9-hotspot\bin\jli.dll
+0x00007ffbf1c40000 - 0x00007ffbf1dd7000 	C:\Windows\System32\USER32.dll
+0x00007ffbee6c0000 - 0x00007ffbee6e0000 	C:\Windows\System32\win32u.dll
+0x00007ffbdb3e0000 - 0x00007ffbdb659000 	C:\Windows\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.17763.5329_none_de6f1d32534d4c59\COMCTL32.dll
+0x00007ffbf1e40000 - 0x00007ffbf1e69000 	C:\Windows\System32\GDI32.dll
+0x00007ffbee3c0000 - 0x00007ffbee56a000 	C:\Windows\System32\gdi32full.dll
+0x00007ffbef3c0000 - 0x00007ffbef45e000 	C:\Windows\System32\msvcrt.dll
+0x00007ffbef210000 - 0x00007ffbef2b0000 	C:\Windows\System32\msvcp_win.dll
+0x00007ffbf1070000 - 0x00007ffbf139b000 	C:\Windows\System32\combase.dll
+0x00007ffbf1fd0000 - 0x00007ffbf20ee000 	C:\Windows\System32\RPCRT4.dll
+0x00007ffbef2b0000 - 0x00007ffbef332000 	C:\Windows\System32\bcryptPrimitives.dll
+0x00007ffbf0f90000 - 0x00007ffbf0fbe000 	C:\Windows\System32\IMM32.DLL
+0x00007ffbedf90000 - 0x00007ffbedfcb000 	C:\Program Files\Citrix\HDX\bin\MfApHook.dll
+0x00007ffbedeb0000 - 0x00007ffbedee4000 	C:\Program Files\Citrix\HDX\bin\CtxMFPlugin64.dll
+0x00007ffbf1b10000 - 0x00007ffbf1bb8000 	C:\Windows\System32\ADVAPI32.dll
+0x00007ffbede90000 - 0x00007ffbedea3000 	C:\Windows\SYSTEM32\WTSAPI32.dll
+0x00007ffbef460000 - 0x00007ffbef502000 	C:\Windows\System32\sechost.dll
+0x00007ffbedc80000 - 0x00007ffbede81000 	C:\Windows\SYSTEM32\MFPlat.DLL
+0x00007ffbef1e0000 - 0x00007ffbef206000 	C:\Windows\System32\bcrypt.dll
+0x00007ffbee570000 - 0x00007ffbee5ba000 	C:\Windows\System32\cfgmgr32.dll
+0x00007ffbf13a0000 - 0x00007ffbf1447000 	C:\Windows\System32\shcore.dll
+0x00007ffbf1e70000 - 0x00007ffbf1fc6000 	C:\Windows\System32\ole32.dll
+0x00007ffbf0e30000 - 0x00007ffbf0ef4000 	C:\Windows\System32\OLEAUT32.dll
+0x00007ffbee180000 - 0x00007ffbee191000 	C:\Windows\System32\kernel.appcore.dll
+0x00007ffbd0840000 - 0x00007ffbd084c000 	C:\Program Files\Microsoft\jdk-11.0.21.9-hotspot\bin\VCRUNTIME140_1.dll
+0x00007ffbedc20000 - 0x00007ffbedc4f000 	C:\Windows\SYSTEM32\RTWorkQ.DLL
+0x00007ffbed6f0000 - 0x00007ffbedc19000 	C:\Windows\system32\mfcore.dll
+0x00007ffbee1a0000 - 0x00007ffbee39e000 	C:\Windows\System32\CRYPT32.dll
+0x00007ffbee100000 - 0x00007ffbee112000 	C:\Windows\System32\MSASN1.dll
+0x00007ffbee120000 - 0x00007ffbee17d000 	C:\Windows\System32\powrprof.dll
+0x00007ffbed6e0000 - 0x00007ffbed6e9000 	C:\Windows\SYSTEM32\ksuser.dll
+0x00007ffbed6d0000 - 0x00007ffbed6dc000 	C:\Windows\SYSTEM32\CRYPTBASE.DLL
+0x00007ffbe5c10000 - 0x00007ffbe5c4a000 	C:\Program Files\Citrix\HDX\bin\mmhook.dll
+0x00007ffbec0d0000 - 0x00007ffbec0ff000 	C:\Program Files\Citrix\HDX\bin\SfrHook.dll
+0x00007ffbed670000 - 0x00007ffbed69d000 	C:\Program Files\Citrix\HDX\bin\ShellHook.dll
+0x00007ffbf18d0000 - 0x00007ffbf1922000 	C:\Windows\System32\SHLWAPI.dll
+0x00007ffbed540000 - 0x00007ffbed666000 	C:\Program Files\Citrix\HDX\bin\SCardHook.dll
+0x00007ffbc4070000 - 0x00007ffbc40fd000 	C:\Program Files\Microsoft\jdk-11.0.21.9-hotspot\bin\msvcp140.dll
+0x00007ffb78ed0000 - 0x00007ffb79aa0000 	C:\Program Files\Microsoft\jdk-11.0.21.9-hotspot\bin\server\jvm.dll
+0x00007ffbf0f00000 - 0x00007ffbf0f08000 	C:\Windows\System32\PSAPI.DLL
+0x00007ffbd9110000 - 0x00007ffbd9119000 	C:\Windows\SYSTEM32\WSOCK32.dll
+0x00007ffbf1930000 - 0x00007ffbf199d000 	C:\Windows\System32\WS2_32.dll
+0x00007ffbdbab0000 - 0x00007ffbdbad4000 	C:\Windows\SYSTEM32\WINMM.dll
+0x00007ffbe7670000 - 0x00007ffbe767a000 	C:\Windows\SYSTEM32\VERSION.dll
+0x00007ffbdb7c0000 - 0x00007ffbdb7ed000 	C:\Windows\SYSTEM32\WINMMBASE.dll
+0x00007ffbe7ab0000 - 0x00007ffbe7ac0000 	C:\Program Files\Microsoft\jdk-11.0.21.9-hotspot\bin\verify.dll
+0x00007ffbdad90000 - 0x00007ffbdaf7d000 	C:\Windows\SYSTEM32\DBGHELP.DLL
+0x00007ffbdad50000 - 0x00007ffbdad7a000 	C:\Windows\SYSTEM32\dbgcore.DLL
+0x00007ffbcf230000 - 0x00007ffbcf258000 	C:\Program Files\Microsoft\jdk-11.0.21.9-hotspot\bin\java.dll
+0x00007ffbe5f40000 - 0x00007ffbe5f4a000 	C:\Program Files\Microsoft\jdk-11.0.21.9-hotspot\bin\jimage.dll
+0x00007ffbbb940000 - 0x00007ffbbb979000 	C:\Program Files\Microsoft\jdk-11.0.21.9-hotspot\bin\jdwp.dll
+0x00007ffbd0470000 - 0x00007ffbd0488000 	C:\Program Files\Microsoft\jdk-11.0.21.9-hotspot\bin\zip.dll
+
+dbghelp: loaded successfully - version: 4.0.5 - missing functions: none
+symbol engine: initialized successfully - sym options: 0x614 - pdb path: .;C:\Program Files\Microsoft\jdk-11.0.21.9-hotspot\bin;C:\Windows\SYSTEM32;C:\Windows\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.17763.5329_none_de6f1d32534d4c59;C:\Program Files\Citrix\HDX\bin;C:\Program Files\Microsoft\jdk-11.0.21.9-hotspot\bin\server
+
+VM Arguments:
+jvm_args: -agentlib:jdwp=transport=dt_socket,server=n,suspend=y,address=localhost:52507 
+java_command: uitest
+java_class_path (initial): C:\Users\jab525\Documents\GitHub\CRSMain\bin;c:\Program Files\Microsoft JDBC DRIVER 11.2 for SQL Server\sqljdbc_11.2\enu\mssql-jdbc-11.2.0.jre11.jar
+Launcher Type: SUN_STANDARD
+
+[Global flags]
+     intx CICompilerCount                          = 4                                         {product} {ergonomic}
+     uint ConcGCThreads                            = 2                                         {product} {ergonomic}
+     uint G1ConcRefinementThreads                  = 8                                         {product} {ergonomic}
+   size_t G1HeapRegionSize                         = 1048576                                   {product} {ergonomic}
+    uintx GCDrainStackTargetSize                   = 64                                        {product} {ergonomic}
+   size_t InitialHeapSize                          = 268435456                                 {product} {ergonomic}
+   size_t MarkStackSize                            = 4194304                                   {product} {ergonomic}
+   size_t MaxHeapSize                              = 4294967296                                {product} {ergonomic}
+   size_t MinHeapDeltaBytes                        = 1048576                                   {product} {ergonomic}
+    uintx NonNMethodCodeHeapSize                   = 5836300                                {pd product} {ergonomic}
+    uintx NonProfiledCodeHeapSize                  = 122910970                              {pd product} {ergonomic}
+    uintx ProfiledCodeHeapSize                     = 122910970                              {pd product} {ergonomic}
+    uintx ReservedCodeCacheSize                    = 251658240                              {pd product} {ergonomic}
+     bool SegmentedCodeCache                       = true                                      {product} {ergonomic}
+     bool UseCompressedClassPointers               = true                                 {lp64_product} {ergonomic}
+     bool UseCompressedOops                        = true                                 {lp64_product} {ergonomic}
+     bool UseG1GC                                  = true                                      {product} {ergonomic}
+     bool UseLargePagesIndividualAllocation        = false                                  {pd product} {ergonomic}
+
+Logging:
+Log output configuration:
+ #0: stdout all=warning uptime,level,tags
+ #1: stderr all=off uptime,level,tags
+
+Environment Variables:
+JAVA_HOME=C:\Program Files\Microsoft\jdk-11.0.21.9-hotspot\
+PATH=C:\Program Files\Microsoft\jdk-11.0.21.9-hotspot\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\Citrix\HDX\bin\;C:\Program Files\Citrix\HDX\bin\;C:\Program Files\Microsoft VS Code\bin;C:\Program Files (x86)\Microsoft SQL Server\160\DTS\Binn\;C:\Program Files\Azure Data Studio\bin;C:\Program Files (x86)\Citrix\Workspace Environment Management Agent;C:\Program Files\AzureConnectedMachineAgent\;C:\Users\jab525\AppData\Local\Microsoft\WindowsApps;C:\Users\jab525\AppData\Local\Programs\Git\cmd;C:\Users\jab525\AppData\Local\GitHubDesktop\bin
+USERNAME=jab525
+LANG=en_US.UTF-8
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 85 Stepping 0, GenuineIntel
+TMP=C:\Users\LOFE7E~1\Temp\162
+TEMP=C:\Users\LOFE7E~1\Temp\162
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows Server 2019 , 64 bit Build 17763 (10.0.17763.4974)
+OS uptime: 94 days 4:06 hours
+VMWare virtualization detected
+
+CPU:total 8 (initial active 8) (2 cores per cpu, 1 threads per core) family 6 model 85 stepping 0 microcode 0x5003501, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, avx, avx2, aes, clmul, erms, 3dnowpref, lzcnt, tsc, tscinvbit, bmi1, bmi2, adx, fma
+
+Memory: 4k page, system-wide physical 16383M (348M free)
+TotalPageFile size 24479M (AvailPageFile size 237M)
+current process WorkingSet (physical memory assigned to process): 13M, peak: 13M
+current process commit charge ("private bytes"): 62M, peak: 318M
+
+vm_info: OpenJDK 64-Bit Server VM (11.0.21+9-LTS) for windows-amd64 JRE (11.0.21+9-LTS), built on Oct 11 2023 01:05:28 by "MicrosoftCorporation" with MS VC++ 16.10 / 16.11 (VS2019)
+
+END.
