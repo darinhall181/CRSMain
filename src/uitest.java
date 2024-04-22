@@ -277,6 +277,7 @@ public class uitest {
                         + "body_lens.lens_id = lens.id where brand.name = ? and (body.price + lens.price) <= ?;";
                     }
 
+                    // if the user only wants a lens, then all lenses from the specified brand that are under the budget are returned
                     else{
                         query = "select brand.id, brand.name, lens.FL_start, lens.FL_end, lens.aperture, lens.price "
                         + "from brand inner join lens on brand.id = lens.brand where brand.name = ? and lens.price <= ?;";
@@ -530,11 +531,12 @@ public class uitest {
     }
 
 
-
+    // this method returns a random camera/lens combination and tells the user what kind(s) of photography the combination is best for
     public static void method4(){
 
         System.out.println("\nBelow is a recommended camera & lens combination. Enjoy!");
 
+        // this query will return a random row from the body table and a compatible lens
         try(Connection connection = DriverManager.getConnection(connectionUrl)){
             String query = "select top 1 brand.name, body.model, lens.FL_start, lens.FL_end, lens.aperture, "
             + "body.price + lens.price as total_price from brand inner join body on brand.id = body.brand "
@@ -542,9 +544,14 @@ public class uitest {
             + "body_lens.lens_id = lens.id where body.id = (SELECT TOP 1 id FROM body ORDER BY NEWID());";
 
             PreparedStatement statement = connection.prepareStatement(query);
+
+            // result stores the line of the database that the above query returns
             ResultSet result = statement.executeQuery();
+
+            // fl stores the FL_end attribute of the lens
             int fl = 0;
 
+            // fl is populated and the rest of the information on the camera/lens combo is printed
             while(result.next()){
                 fl = result.getInt(4);
                 System.out.println("\nBrand: " + result.getString(1) + " | Model: " + result.getString(2)
@@ -552,9 +559,10 @@ public class uitest {
                 + result.getString(5) + " | Price: $" + result.getString(6));
             }
 
-
+            // uses will store the uses that a lens of the specified focal lenth is best for
             String uses = null;
 
+            // uses is populated based on the focal length fl
             if(fl >= 0 && fl <= 35){
                 uses = "landscapes and events!";
             }
@@ -606,18 +614,21 @@ public class uitest {
                 s.close();
                 try(Connection connection = DriverManager.getConnection(connectionUrl)){
 
+                    // every body belonging to the specified brand is updated by the specified amount
                     String query1 = "update b set b.price = b.price + ? from body b inner join brand x on b.brand = x.id where x.name = ?;";
                     PreparedStatement statement1 = connection.prepareStatement(query1, Statement.RETURN_GENERATED_KEYS);
                     statement1.setString(1, dollar_amount);
                     statement1.setString(2, brand);
                     statement1.executeQuery();
 
+                    // every lens belonging to the specified brand is updated by the specified amount
                     String query2 = "update lens set lens.price = lens.price + ? from lens inner join brand on lens.brand = brand.id where brand.name = ?;";
                     PreparedStatement statement2 = connection.prepareStatement(query2, Statement.RETURN_GENERATED_KEYS);
                     statement2.setString(1, dollar_amount);
                     statement2.setString(2, brand);
                     statement2.executeQuery();
 
+                    // confirmation of the change is printed
                     if(Integer.parseInt(dollar_amount) > 0){
                         System.out.println("\n" + brand + "'s prices have been increased by $" + dollar_amount + ".");
                     }
@@ -632,24 +643,31 @@ public class uitest {
                     e.printStackTrace();
                 }
 
+            // percentage
             case 2:
+
+                // the user's specified percentage is taken and stored in the percent field
                 Scanner s1 = new Scanner(System.in);
                 System.out.println("\nBy what percentage would you like to change your prices? Enter a negative number to decrease your prices.");
                 String percent = s1.nextLine();
                 s1.close();
                 try(Connection connection = DriverManager.getConnection(connectionUrl)){
+
+                    // every body belonging to the specified brand is updated by the specified percentage
                     String query1 = "update b set b.price = b.price * (1 + ? / 100) from body b inner join brand x on b.brand = x.id where x.name = ?;";
                     PreparedStatement statement1 = connection.prepareStatement(query1, Statement.RETURN_GENERATED_KEYS);
                     statement1.setString(1, percent);
                     statement1.setString(2, brand);
                     statement1.executeQuery();
 
+                    // every lens belonging to the specified brand is updated by the specified percentage
                     String query2 = "update b set b.price = b.price * (1 + ? / 100) from body b inner join brand x on b.brand = x.id where x.name = ?;";
                     PreparedStatement statement2 = connection.prepareStatement(query2, Statement.RETURN_GENERATED_KEYS);
                     statement2.setString(1, percent);
                     statement2.setString(2, brand);
                     statement2.executeQuery();
 
+                    // confirmation of the price update is printed
                     if(Integer.parseInt(percent) > 0){
                         System.out.println("\n" + brand + "'s prices have been increased by " + percent + "%.");
                     }
@@ -671,10 +689,12 @@ public class uitest {
 
     }
 
+    // method to add a new product to the market
     public static void method6(){
 
         Scanner scan = new Scanner(System.in);
 
+        // brand name is recorded in the brand field
         System.out.println("\nWhat is the name of your brand?");
         String brand = scan.nextLine();
 
@@ -683,41 +703,56 @@ public class uitest {
         System.out.println("3. Gear");
         System.out.println("\nWhat type of product would you like to add to the market? Please type the number corresponding to your choice.");
 
+        // the type of product that will be added to the market is stored in the choice field
         int choice = scan.nextInt();
         scan.nextLine();
 
+        // result stores the result of the final query
         ResultSet result = null;
 
-
+        // different code will be executed based on what type of product will be added to the market
         switch(choice){
 
+            // camera body
             case 1:
                 System.out.println("\nWhat is the name of the model you are adding?");
+                // name stores the name of the camera body model
                 String name = scan.nextLine();
                 System.out.println("\nWhat is the price of the model you are adding (in dollars)?");
+                // price stores the price of the product
                 int price = scan.nextInt();
                 scan.nextLine();
                 System.out.println("\nWhat is the id number of the lens that comes with your camera body? Press 'enter' if no lens comes with your camera.");
+                // response stores the id number of the lens that comes with the camera, and will store null if the camera does not come with a lens
                 String response = scan.nextLine();
+                // kit_lens will store the integer form of the id number stored in response
                 int kit_lens = 0;
 
+                // if there is an id number, its integer version will be stored in kit_lens
                 if(!response.equals("")){
                     kit_lens = Integer.parseInt(response);
                 }
        
 
                 try(Connection connection = DriverManager.getConnection(connectionUrl)){
+
+                    // this query will insert the camera body into the database with the specified parameters
                     String query1 = "insert into body(brand, model, price, kit_lens) values((select id from brand where name = ?), ?, ?, ?);";
                     PreparedStatement statement1 = connection.prepareStatement(query1, Statement.RETURN_GENERATED_KEYS);
                     statement1.setString(1, brand);
                     statement1.setString(2, name);
                     statement1.setInt(3, price);
+
+                    // if there was no lens that came with the camera, then the kit_lens field is set to null
                     if(response.equals("")){
                         statement1.setNull(4, Types.INTEGER);
                     }
+                    // if there is a lens that came with the camera, then its id number is added to the kit_lens field
                     else{
                         statement1.setInt(4, kit_lens);
                     }
+
+                    // result stores the result of the query and it is returned below
                     result = statement1.executeQuery();
                     while(result.next()){
                         System.out.println("\nYour camera body has been added to the database. Its id number is: " + result.getString(1));
@@ -729,36 +764,61 @@ public class uitest {
                     e.printStackTrace();
                 }
            
+            // lens
             case 2:
                 System.out.println("\nWhat is the price of your lens?");
+                // lens_price stores the price of the lens
                 int lens_price = scan.nextInt();
                 scan.nextLine();
-                System.out.println("\nWhat is the focal length of your lens?");
-                String focal_length = scan.nextLine();
+
+                // the user is asked whether they have a prime or zoom lens
+                // this will determine both the type attribute of the lens table as well as the format of the focal length
                 System.out.println("\n1. Prime \n2. Zoom");
                 System.out.println("\nWhat type of lens are you adding? Please enter the number corresponding to your choice.");
-                String type = null;
 
+                // type stores the type of the lens (prime or zoom)
+                String type = null;
+                // fl_start stores the lower bound of the focal length
+                String fl_start = null;
+                // fl_end stores the upper bound of the focal length
+                String fl_end = null;
+
+                // if the lens is a prime lens
                 if(scan.nextInt() == 1){
                     type = "prime";
+                    System.out.println("What is the focal length of your lens?");
+                    // if the lens is a prime, then both the upper and lower bound of the focal length are the same
+                    fl_start = scan.nextLine();
+                    fl_end = fl_start;
                 }
+                // if the lens is a zoom lens
                 else{
                     type = "zoom";
+                    // both the upper and lower bounds of the focal length need to be specified
+                    System.out.println("What is the lower bound of your lens' focal length?");
+                    fl_start = scan.nextLine();
+                    System.out.println("What is the upper bound of your lens' focal length?");
+                    fl_end = scan.nextLine();
                 }
-
+                
+                // aperture stores the aperture of the lens
                 System.out.println("\nWhat is the aperture of your lens?");
                 float aperture = scan.nextFloat();
 
+                // the below query and statement will insert a lens with the given parameters into the database
                 try(Connection connection = DriverManager.getConnection(connectionUrl)){
-                    String query1 = "insert into lens(brand, price, focal_len, type, aperature) values((select id from brand where name = ?), ?, ?, ?, ?);";
+                    String query1 = "insert into lens(brand, price, FL_start, FL_end, type, aperture) values((select id from brand where name = ?), ?, ?, ?, ?);";
                     PreparedStatement statement1 = connection.prepareStatement(query1, Statement.RETURN_GENERATED_KEYS);
                     statement1.setString(1, brand);
                     statement1.setInt(2, lens_price);
-                    statement1.setString(3, focal_length);
-                    statement1.setString(4, type);
-                    statement1.setFloat(5, aperture);
+                    statement1.setString(3, fl_start);
+                    statement1.setString(4, fl_end);
+                    statement1.setString(5, type);
+                    statement1.setFloat(6, aperture);
 
                     result = statement1.executeQuery();
+
+                    //confirmation of the addition into the database is printed
                     while(result.next()){
                         System.out.println("\nYour lens has been added to the database. Its id number is: " + result.getString(1));
                     }
@@ -768,14 +828,19 @@ public class uitest {
                     e.printStackTrace();
                 }
            
+            // gear
             case 3:
                 System.out.println("\nWhat is the price of your gear?");
+                // gear_price stores the price of the piece of gear to be added
                 int gear_price = scan.nextInt();
                 scan.nextLine();
+
+                // gear_type stores what type of gear is being stored
                 System.out.println("\n1. Tripod\n2. Filter\n3. Lens Cap\n4. Flash\n5. Adapter");
                 System.out.println("\nWhat type of gear are you adding? Please type the number corresponding to the correct gear type.");
                 String gear_type = null;
 
+                // gear_type is populated based on the user's input
                 switch(scan.nextInt()){
                     case 1:
                         gear_type = "tripod";
@@ -796,6 +861,7 @@ public class uitest {
                     
                 }
 
+                // the query below inserts the piece of gear into the database with the given parameters
                 try(Connection connection = DriverManager.getConnection(connectionUrl)){
                     String query1 = "insert into gear(price, type) values(?, ?);";
                     PreparedStatement statement1 = connection.prepareStatement(query1, Statement.RETURN_GENERATED_KEYS);
@@ -803,6 +869,7 @@ public class uitest {
                     statement1.setString(2, gear_type);
                     result = statement1.executeQuery();
 
+                    // confirmation is printed
                     while(result.next()){
                         System.out.println("\nYour " + gear_type + " has been added to the database. Its id number is: " + result.getString(1));
                     }
