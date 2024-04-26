@@ -658,7 +658,7 @@ public class uitest {
                     PreparedStatement statement1 = connection.prepareStatement(query1, Statement.RETURN_GENERATED_KEYS);
                     statement1.setString(1, percent);
                     statement1.setString(2, brand);
-                    statement1.executeQuery();
+                    statement1.executeQuery(); //test
 
                     // every lens belonging to the specified brand is updated by the specified percentage
                     String query2 = "update l set l.price = l.price * (1 + ? / 100) from lens l inner join brand x on l.brand = x.id where x.name = ?;";
@@ -667,7 +667,7 @@ public class uitest {
                     statement2.setString(2, brand);
                     statement2.executeQuery();
 
-                    // confirmation of the price update is printed
+                    // confirmation of the price update is printedk
                     if(Integer.parseInt(percent) > 0){
                         System.out.println("\n" + brand + "'s prices have been increased by " + percent + "%.");
                     }
